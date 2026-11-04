@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ល្បែងខែលសំណាញ់មេឃ</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;600;700&display=swap">
+<style>
+:root{--bg:#eef1f5;--text:#1b2430;--muted:#5b6a7b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1319;--text:#e6ecf3;--muted:#98a6b6;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1319;--text:#e6ecf3;--muted:#98a6b6;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 "Noto Sans Khmer","Khmer UI","Leelawadee UI","Khmer OS Battambang",system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:14px 12px 28px}
+h1{font-size:1.3rem;margin:0 0 10px;line-height:1.5}
+#wrap{position:relative}
+canvas{width:100%;display:block;border-radius:12px;touch-action:none;background:#0b1630;cursor:crosshair}
+.ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(5,10,22,.82);color:#fff;border-radius:12px;text-align:center;padding:14px;overflow:auto}
+.ov.hid{display:none}
+.ov h2{margin:0;font-size:1.35rem;line-height:1.5}
+.ov p{margin:0;font-size:.92rem;line-height:1.7;max-width:500px}
+button{font:inherit;cursor:pointer;border-radius:12px;border:0;color:#fff;background:#1e88e5;padding:6px 18px}
+.note{font-size:.82rem;color:var(--muted);margin:10px 0 0}
+</style>
+</head>
+<body>
+<main>
+  <h1>🛡️ ល្បែងខែលសំណាញ់មេឃ</h1>
+  <div id="wrap">
+    <canvas id="c"></canvas>
+    <div id="intro" class="ov">
+      <h2>ការពារទីតាំងទាំង ៦</h2>
+      <p>រ៉ុក្កែត <b>PHL-03</b> (៦ បំពង់ក្នុងមួយដង) បាញ់មកពីចម្ងាយ <b>៨០ · ១២០ · ១៦០ · ២០០ គ.ម</b>។ ប៉ះលើមេឃដើម្បីបាញ់ <b>ខែលសំណាញ់</b>៖ គ្រាប់ទប់ស្កាត់ហោះទៅកន្លែងនោះ ហើយបន្ទុះជាសំណាញ់ពន្លឺដែលបំផ្លាញរ៉ុក្កែតដែលហោះកាត់។</p>
+      <p>ត្រូវបាញ់នាំមុខផ្លូវរ៉ុក្កែត។ ថាមពលសំណាញ់មានកំណត់ ហើយត្រឡប់មកវិញបន្តិចម្តងៗ។ ចម្ងាយកាន់តែឆ្ងាយ ពេលព្រមានកាន់តែយូរ ប៉ុន្តែរ៉ុក្កែតរាយកាន់តែទូលាយ។ សញ្ញាក្រហមលើដីបង្ហាញកន្លែងដែលរ៉ុក្កែតនឹងធ្លាក់។</p>
+      <button id="go">ចាប់ផ្តើម</button>
+    </div>
+    <div id="end" class="ov hid">
+      <h2>ទីតាំងត្រូវបំផ្លាញអស់ ✖</h2>
+      <p id="eS" style="font-size:1.4rem;font-weight:700"></p>
+      <p id="eB"></p>
+      <button id="again">លេងម្តងទៀត</button>
+    </div>
+  </div>
+  <p class="note">ចំណាំ៖ នេះជាល្បែងកម្សាន្តប៉ុណ្ណោះ។ ទីតាំងជាទីតាំងស្រមើស្រមៃ ហើយចម្ងាយ ចំនួនបំពង់ និងពេលវេលាត្រូវបានកំណត់សម្រាប់ល្បែង មិនមែនលក្ខណៈពិតរបស់អាវុធទេ។</p>
+</main>
+
+<script>
+const cv=document.getElementById("c"),g=cv.getContext("2d"),W=640,H=480,GY=410,BX=320,MAXC=8;
+cv.width=W;cv.height=H;
+const $=id=>document.getElementById(id);
+const km=n=>String(n).replace(/\d/g,d=>"០១២៣៤៥៦៧៨៩"[d]);
+const FONT='"Noto Sans Khmer","Khmer UI","Leelawadee UI",sans-serif';
+const SP={80:50,120:80,160:110,200:140},COL={80:"#ffb74d",120:"#ff8a65",160:"#ff5252",200:"#e040fb"};
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const gauss=()=>Math.sqrt(-2*Math.log(1-Math.random()))*Math.cos(2*Math.PI*Math.random());
+const stars=Array.from({length:60},()=>({x:rnd(0,W),y:rnd(0,300),r:rnd(.5,1.6)}));
+let bl=[],en=[],ic=[],bu=[],ex=[],cr=[],fx=[],queue=[],ch=MAXC,reg=0,wave=0,score=0,best=0,st="intro",wt=0,pause=0,cur=null,mx=BX,my=200,T=0;
+try{best=+localStorage.getItem("sky-best")||0}catch(e){}
+
+function reset(){
+  bl=[0,1,2,3,4,5].map(i=>({x:70+i*100,alive:true}));
+  en=[];ic=[];bu=[];ex=[];cr=[];fx=[];queue=[];ch=MAXC;reg=0;wave=0;score=0;pause=1.2;cur=null;st="play";
+  $("intro").classList.add("hid");$("end").classList.add("hid");
+}
+$("go").onclick=reset;$("again").onclick=reset;
+
+function startWave(){
+  wave++;
+  const avail=[80,120,160,200].slice(0,Math.min(4,1+Math.floor(wave/1.5)));
+  const range=avail[Math.floor(Math.random()*avail.length)],salvos=wave>=5?2:1;
+  queue=[];wt=0;
+  for(let s=0;s<salvos;s++){
+    const alive=bl.filter(b=>b.alive),c=alive[Math.floor(Math.random()*alive.length)].x;
+    for(let i=0;i<6;i++)queue.push({at:s*2.4+i*.25,range,cx:c,done:false});
+  }
+  cur={range,salvos,n:salvos*6};
+}
+function spawn(q){
+  const tx=Math.max(20,Math.min(620,q.cx+gauss()*SP[q.range]/1.6));
+  const dur=(4+q.range/200*3.2)*(1-Math.min(.3,wave*.025));
+  en.push({sx:rnd(40,600),sy:-10,tx,ty:GY,t:0,dur,range:q.range});
+}
+
+function pos(e){const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height]}
+cv.addEventListener("pointermove",e=>{[mx,my]=pos(e)});
+cv.addEventListener("pointerdown",e=>{
+  [mx,my]=pos(e);
+  if(st!=="play"||ch<1||my>GY-12)return;
+  ch--;ic.push({x:BX,y:GY-8,tx:mx,ty:my});
+});
+
+function update(dt){
+  T+=dt;
+  if(st==="play"){
+    reg+=dt;if(reg>=.9){reg=0;ch=Math.min(MAXC,ch+1)}
+    if(!cur){pause-=dt;if(pause<=0)startWave()}
+    else{
+      wt+=dt;queue.forEach(q=>{if(!q.done&&wt>=q.at){q.done=true;spawn(q)}});
+      if(queue.every(q=>q.done)&&!en.length){
+        const bonus=20+bl.filter(b=>b.alive).length*10;score+=bonus;
+        fx.push({x:W/2,y:140,txt:"រលកចប់ +"+km(bonus),life:1.8});
+        cur=null;pause=2.2;ch=Math.min(MAXC,ch+3);
+      }
+    }
+  }
+  ic.forEach(i=>{
+    const dx=i.tx-i.x,dy=i.ty-i.y,d=Math.hypot(dx,dy),s=560*dt;
+    if(d<=s){i.dead=true;bu.push({x:i.tx,y:i.ty,age:0})}else{i.x+=dx/d*s;i.y+=dy/d*s}
+  });
+  ic=ic.filter(i=>!i.dead);
+  bu.forEach(b=>b.age+=dt);bu=bu.filter(b=>b.age<1.4);
+  en.forEach(e=>{
+    e.t+=dt;const p=e.t/e.dur;e.x=e.sx+(e.tx-e.sx)*p;e.y=e.sy+(e.ty-e.sy)*p;
+    for(const b of bu){
+      if(Math.hypot(e.x-b.x,e.y-b.y)<brad(b)+3){
+        e.dead=true;score+=10;ex.push({x:e.x,y:e.y,life:.5,c:"#9ee7ff",r:18});
+        fx.push({x:e.x,y:e.y-10,txt:"+"+km(10),life:.8,sm:1});break;
+      }
+    }
+    if(!e.dead&&e.t>=e.dur){
+      e.dead=true;ex.push({x:e.tx,y:GY,life:.7,c:"#ff9800",r:30});cr.push({x:e.tx});
+      bl.forEach(b=>{if(b.alive&&Math.abs(b.x-e.tx)<30)b.alive=false});
+    }
+  });
+  en=en.filter(e=>!e.dead);
+  ex.forEach(e=>e.life-=dt);ex=ex.filter(e=>e.life>0);
+  fx.forEach(f=>{f.life-=dt;f.y-=dt*22});fx=fx.filter(f=>f.life>0);
+  if(st==="play"&&bl.every(b=>!b.alive)){
+    st="over";
+    if(score>best){best=score;try{localStorage.setItem("sky-best",score)}catch(e){}}
+    $("eS").textContent="ពិន្ទុ៖ "+km(score)+" · រលកទី "+km(wave);
+    $("eB").textContent="ពិន្ទុខ្ពស់បំផុត៖ "+km(best);
+    $("end").classList.remove("hid");
+  }
+}
+const brad=b=>b.age<.25?58*b.age/.25:58;
+
+function txt(s,x,y,size,al,col){
+  g.font="700 "+size+"px "+FONT;g.textAlign=al;g.lineWidth=4;g.strokeStyle="rgba(0,0,0,.6)";g.strokeText(s,x,y);g.fillStyle=col||"#fff";g.fillText(s,x,y);
+}
+function bg(){
+  const s=g.createLinearGradient(0,0,0,GY);s.addColorStop(0,"#050b1f");s.addColorStop(1,"#243a66");
+  g.fillStyle=s;g.fillRect(0,0,W,H);
+  g.fillStyle="#fff";stars.forEach(t=>{g.globalAlpha=.5+.5*Math.sin(T*2+t.x);g.beginPath();g.arc(t.x,t.y,t.r,0,7);g.fill()});g.globalAlpha=1;
+  g.fillStyle="#f4f1d0";g.beginPath();g.arc(540,70,22,0,7);g.fill();
+  g.fillStyle="#12202e";g.beginPath();g.moveTo(0,GY);for(let x=0;x<=W;x+=20)g.lineTo(x,GY-14-Math.sin(x*.02)*10-Math.sin(x*.05)*4);g.lineTo(W,GY);g.fill();
+  g.fillStyle="#1a2a1d";g.fillRect(0,GY,W,H-GY);
+  g.fillStyle="#2c4a2f";g.fillRect(0,GY,W,4);
+  cr.forEach(c=>{g.fillStyle="rgba(0,0,0,.5)";g.beginPath();g.ellipse(c.x,GY+6,12,4,0,0,7);g.fill()});
+}
+function city(){
+  bl.forEach(b=>{
+    if(!b.alive){g.fillStyle="#2a2018";g.fillRect(b.x-18,GY-6,36,6);g.fillStyle="#555";g.fillRect(b.x-8,GY-12,6,6);return}
+    g.fillStyle="#46586e";g.fillRect(b.x-18,GY-34,36,34);g.fillRect(b.x-8,GY-46,16,12);
+    g.fillStyle="#ffe082";for(let i=0;i<3;i++)for(let j=0;j<2;j++)g.fillRect(b.x-13+i*10,GY-28+j*12,5,6);
+  });
+  g.fillStyle="#37474f";g.beginPath();g.arc(BX,GY,18,Math.PI,0);g.fill();
+  g.fillStyle="#90caf9";g.fillRect(BX-3,GY-30,6,14);g.fillStyle="#cfd8dc";g.beginPath();g.arc(BX,GY-30,5,0,7);g.fill();
+}
+function enemies(){
+  en.forEach(e=>{
+    g.fillStyle="rgba(255,82,82,.55)";g.beginPath();g.moveTo(e.tx,GY+2);g.lineTo(e.tx-6,GY+12);g.lineTo(e.tx+6,GY+12);g.fill();
+    const gr=g.createLinearGradient(e.sx,e.sy,e.x,e.y);gr.addColorStop(0,"rgba(255,255,255,0)");gr.addColorStop(1,"rgba(255,255,255,.45)");
+    g.strokeStyle=gr;g.lineWidth=2;g.beginPath();g.moveTo(e.sx,e.sy);g.lineTo(e.x,e.y);g.stroke();
+    g.fillStyle=COL[e.range];g.beginPath();g.arc(e.x,e.y,4,0,7);g.fill();
+    g.fillStyle="#fff";g.beginPath();g.arc(e.x,e.y,1.8,0,7);g.fill();
+  });
+}
+function shield(){
+  ic.forEach(i=>{
+    g.strokeStyle="rgba(158,231,255,.65)";g.lineWidth=2;g.beginPath();g.moveTo(BX,GY-30);g.lineTo(i.x,i.y);g.stroke();
+    g.fillStyle="#9ee7ff";g.beginPath();g.arc(i.x,i.y,3.5,0,7);g.fill();
+  });
+  bu.forEach(b=>{
+    const r=brad(b),a=b.age<1?1:1-(b.age-1)/.4;g.globalAlpha=a;
+    g.fillStyle="rgba(120,220,255,.14)";g.beginPath();g.arc(b.x,b.y,r,0,7);g.fill();
+    g.strokeStyle="#7fe3ff";g.lineWidth=2;g.beginPath();g.arc(b.x,b.y,r,0,7);g.stroke();
+    g.lineWidth=1;g.strokeStyle="rgba(158,231,255,.7)";
+    g.beginPath();g.arc(b.x,b.y,r*.55,0,7);
+    for(let k=0;k<6;k++){const an=k*Math.PI/3+b.age*.8;g.moveTo(b.x,b.y);g.lineTo(b.x+Math.cos(an)*r,b.y+Math.sin(an)*r)}
+    g.stroke();g.globalAlpha=1;
+  });
+  ex.forEach(e=>{
+    const k=1-e.life/.7;g.globalAlpha=Math.min(1,e.life*1.8);g.fillStyle=e.c;g.beginPath();g.arc(e.x,e.y,e.r*(.4+k*.8),0,7);g.fill();g.globalAlpha=1;
+  });
+}
+function hud(){
+  txt("រលកទី "+km(Math.max(1,wave)),12,26,18,"left");
+  txt("ពិន្ទុ៖ "+km(score),12,50,18,"left");
+  g.fillStyle="rgba(255,255,255,.25)";
+  for(let i=0;i<MAXC;i++){g.fillStyle=i<ch?"#7fe3ff":"rgba(255,255,255,.2)";g.fillRect(W-22-i*16,14,12,16)}
+  txt("ថាមពលសំណាញ់",W-12,48,14,"right","#9ee7ff");
+  if(cur){
+    txt("PHL-03 · បាញ់ "+km(cur.range)+" គ.ម · "+km(cur.n)+" គ្រាប់",W/2,26,16,"center",COL[cur.range]);
+  }else if(st==="play"){
+    txt("រៀបចំ... រលកបន្ទាប់កំពុងមក",W/2,26,16,"center","#ffe9a8");
+  }
+}
+function cross(){
+  if(st!=="play")return;
+  g.strokeStyle=ch>=1?"rgba(158,231,255,.9)":"rgba(255,120,120,.9)";g.lineWidth=1.5;
+  g.beginPath();g.arc(mx,my,58,0,7);g.setLineDash([4,6]);g.stroke();g.setLineDash([]);
+  g.beginPath();g.moveTo(mx-8,my);g.lineTo(mx+8,my);g.moveTo(mx,my-8);g.lineTo(mx,my+8);g.stroke();
+}
+function draw(){
+  bg();city();enemies();shield();
+  fx.forEach(f=>{g.globalAlpha=Math.min(1,f.life);txt(f.txt,f.x,f.y,f.sm?15:20,"center",f.sm?"#9ee7ff":"#ffd54f");g.globalAlpha=1});
+  hud();cross();
+}
+let last=performance.now();
+(function loop(now){
+  const dt=Math.min(.05,(now-last)/1000);last=now;
+  update(dt);draw();requestAnimationFrame(loop);
+})(last);
+</script>
+</body>
+</html>
